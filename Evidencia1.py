@@ -29,8 +29,8 @@ while salir:
                 if res_producto == "S":
                     print("Agregue el siguiente producto: ")
                 elif res_producto=="N":
-                    nuevo_produc= False
                     print("saliendo del menu registro")
+                    break
         else:
             print("la clave registrada ya existe, intente de nuevo")
     elif resp_menu == "2":
