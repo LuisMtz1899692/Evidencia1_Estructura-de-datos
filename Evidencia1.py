@@ -25,23 +25,20 @@ while salir:
                 Precio_product=int(input("Ingrese el Precio del producto: "))
                 venta_registrada = ventas(dia_venta, des_prod, Cant_produ, Precio_product)
                 datos_registro[Folio_Vet] = venta_registrada
-                print("Desea Agregar un nuevo producto")
-                print("[1] si")
-                print("[2] No")
-                res_producto = input()
-                if res_producto == "1":
+                res_producto = input("Desea Agregar un nuevo producto[S/N]")
+                if res_producto == "S":
                     print("Agregue el siguiente producto: ")
-                elif res_producto=="2":
+                elif res_producto=="N":
                     nuevo_produc= False
                     print("saliendo del menu registro")
-                else:
-                    print("la clave registrada ya existe, intente de nuevo")
+        else:
+            print("la clave registrada ya existe, intente de nuevo")
     elif resp_menu == "2":
         print("Bienvenido al menu Consultar venta")
-        consulta=input("Ingrese el folio a buscar")
+        consulta=input("Ingrese el folio a buscar: ")
         if consulta in datos_registro.keys():
-            print(f"Los Fecha registrada para esa venta es {datos_registro[Folio_Vet].dia_venta}")
-            print(f"Los productos Registrados son {datos_registro[Folio_Vet].des_prod}")
+            print(f"Los Fecha registrada para esa venta es: {datos_registro[Folio_Vet].dia_venta}")
+            print(f"Los productos Registrados son: {datos_registro[Folio_Vet].des_prod}")
             print(f"La Cantidad de productos es: {datos_registro[Folio_Vet].Cant_produ}")
             print(f"El precio del productos es: {datos_registro[Folio_Vet].Precio_product}")
         else:
