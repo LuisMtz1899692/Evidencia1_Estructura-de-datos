@@ -3,7 +3,7 @@ from datetime import datetime
 datos_registro = {}
 salir=True
 nuevo_produc= True
-ventas= namedtuple("ventas", ("dia_venta","des_prod","Cant_produ", "Precio_product"))
+ventas= namedtuple("ventas", ("dia_venta","des_prod","Cant_produ", "Precio_product", "total_Iva"))
 
 while salir:
     print("******Menu********")
@@ -23,13 +23,19 @@ while salir:
                 des_prod=input("Ingrese La Descripcion del Producto: ")
                 Cant_produ=int(input("Ingrese La Cantidad Del produtos: "))
                 Precio_product=int(input("Ingrese el Precio del producto: "))
-                venta_registrada = ventas(dia_venta, des_prod, Cant_produ, Precio_product)
-                datos_registro[Folio_Vet] = venta_registrada
                 res_producto = input("Desea Agregar un nuevo producto[S/N]")
                 if res_producto == "S":
                     print("Agregue el siguiente producto: ")
-                elif res_producto=="N":
+                elif res_producto=="N":    
                     print("saliendo del menu registro")
+                    total=(Cant_produ)*(Precio_product)
+                    iva=(total)*(.16)
+                    total_Iva=(total)+(iva)
+                    venta_registrada = ventas(dia_venta, des_prod, Cant_produ, Precio_product, total_Iva)
+                    datos_registro[Folio_Vet] = venta_registrada
+                    print(f"El Total es: ${total}")
+                    print(f"El iva(16%): ${iva}")
+                    print(f"El total con iva es: ${total_Iva}")
                     break
         else:
             print("la clave registrada ya existe, intente de nuevo")
@@ -41,6 +47,7 @@ while salir:
             print(f"Los productos Registrados son: {datos_registro[Folio_Vet].des_prod}")
             print(f"La Cantidad de productos es: {datos_registro[Folio_Vet].Cant_produ}")
             print(f"El precio del productos es: {datos_registro[Folio_Vet].Precio_product}")
+            print(f"El total con iva Registrado es de: ${datos_registro[Folio_Vet].total_Iva}")
         else:
             print("El Folio ingrado no se encuentra en el sistema")
             print("Intente de nuevo")
