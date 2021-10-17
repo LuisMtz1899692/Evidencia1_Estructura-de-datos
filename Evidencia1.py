@@ -15,23 +15,30 @@ while True:
 
     if opcion == "1":
         folio = input("Folio de la nueva venta: ")
-        while True:
-            ventas = namedtuple("ventas", ("fecha","producto","cantidad", "precio", "iva", "total"))
-            fecha = datetime.now()
-            producto = input("Producto: ")
-            precio = float(input("Precio: "))
-            cantidad = int(input("Cantidad: "))
-            iva = precio + (precio * 0.16)
-            total = iva * cantidad
-            eleccion = input("Desea Agregar un nuevo producto[S/N]")
-            print()
-            venta_registrada = ventas(fecha, producto, cantidad, precio, iva, total)
-            lista_de_listas.append(venta_registrada)
-            if eleccion == "S":
-                print("Agregue El Siguiente Producto")
-                pass
-            else:
-                break
+        if not folio in diccionario.keys():
+            while True:
+                ventas = namedtuple("ventas", ("fecha","producto","cantidad", "precio", "iva", "total"))
+                fecha = datetime.now()
+                producto = input("Producto: ")
+                precio = float(input("Precio: "))
+                cantidad = int(input("Cantidad: "))
+                iva = precio + (precio * 0.16)
+                total = iva * cantidad
+                eleccion = input("Desea Agregar un nuevo producto[S/N]")
+                print()
+                venta_registrada = ventas(fecha, producto, cantidad, precio, iva, total)
+                lista_de_listas.append(venta_registrada)
+                if eleccion == "S":
+                    print("Agregue El Siguiente Producto")
+                    pass
+                elif eleccion == "N":
+                    print("Usted esta saliendo del menu registro")
+                    break
+                else:
+                    print("La Opcion ingresada no existe intente de nuevo")
+        else:
+            print("La Clave ingresada ya existe")
+            print("Porfavor intente de nuevo...")
         diccionario[folio] = lista_de_listas
         lista_de_listas = list()
 
