@@ -1,9 +1,12 @@
 import pandas as pd
 from collections import namedtuple
-from datetime import datetime
+import csv
+import datetime
 
-diccionario = dict()
-lista_de_listas = list()
+columnas_csv =("fecha","producto","cantidad", "precio", "iva", "total")
+nombre_archivo = "Reporte_venta"
+diccionario = {}
+lista_de_listas = []
 Ag_Produ=True
 ciclo=True
 
@@ -22,7 +25,7 @@ while ciclo:
         if not folio in diccionario.keys():
             while Ag_Produ:
                 ventas = namedtuple("ventas", ("fecha","producto","cantidad", "precio", "iva", "total"))
-                fecha = datetime.now()
+                fecha = datetime.date.today()
                 print(fecha)
                 producto = input("Producto: ")
                 precio = float(input("Precio: "))
@@ -37,6 +40,8 @@ while ciclo:
                     print("Agregue El Siguiente Producto")
                     pass
                 elif eleccion == "N":
+                    print(f"\nSe agregaron los datos:\n {venta_registrada} con el folio {folio} el dia {fecha}")
+                    print("")
                     print("Usted esta saliendo del menu registro")
                     Ag_Produ=False
                 else:
@@ -45,7 +50,6 @@ while ciclo:
             print("La Clave ingresada ya existe")
             print("Porfavor intente de nuevo...")
         diccionario[folio] = lista_de_listas
-        lista_de_listas = list()
 
     elif opcion == "2":
         consulta = input("Ingrese el Folio a consultar: ")
@@ -58,8 +62,17 @@ while ciclo:
                     for dato in tupla:
                         print(dato)
     elif opcion == "3":
-        print("El Siguiente menu creara un reporte")
-        
+        fecha_actual = datetime.date.today()
+        fecha_capturada = input("Ingrese La Fecha (dd/mm/aaaa): \n")
+        fecha_procesada = datetime.datetime.strptime(fecha_capturada, "%d/%m/%Y").date()
+        if fecha_procesada == fecha_actual:
+            print("Tu registro se generara")
+            with open("Reporte_venta.csv","w",newline="") as archivo:
+                registrador = csv.writer(archivo)
+                registrador.writerow(columnas_csv)
+                registrador.writerows(lista_de_listas)
+        else:
+            print("Tu registro se realizara el dia que indicaste")
     elif opcion == "4":
         print("Usted esta saliendo del programa")
         ciclo=False
