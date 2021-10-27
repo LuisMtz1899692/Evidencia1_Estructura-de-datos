@@ -3,7 +3,7 @@ from collections import namedtuple
 import csv
 import datetime
 
-columnas_csv =("fecha","producto","cantidad", "precio", "iva", "total")
+columnas_csv =("Fecha", "Nombre del Producto", "Cantidad", "Precio", "Total sin IVA", "IVA(16%)", "total Con IIVA")
 nombre_archivo = "Reporte_venta"
 diccionario = {}
 lista_de_listas = []
@@ -24,24 +24,23 @@ while ciclo:
         folio = input("Folio de la nueva venta: ")
         if not folio in diccionario.keys():
             while Ag_Produ:
-                ventas = namedtuple("ventas", ("fecha","producto","cantidad", "precio", "iva", "total"))
+                ventas = namedtuple("ventas", ("fecha", "producto", "cantidad", "precio", "total", "iva", "total_iva"))
                 fecha = datetime.date.today()
                 print(fecha)
                 producto = input("Producto: ")
                 precio = float(input("Precio: "))
                 cantidad = int(input("Cantidad: "))
-                iva = precio + (precio * 0.16)
-                total = iva * cantidad
+                total=precio * cantidad
+                iva = precio * 0.16
+                total_iva = (total)+(iva)
                 eleccion = input("Desea Agregar un nuevo producto[S/N]: ")
                 print()
-                venta_registrada = ventas(fecha, producto, cantidad, precio, iva, total)
+                venta_registrada = ventas(fecha, producto, cantidad, precio, total, iva, total_iva)
                 lista_de_listas.append(venta_registrada)
                 if eleccion == "S":
                     print("Agregue El Siguiente Producto")
                     pass
                 elif eleccion == "N":
-                    print(f"\nSe agregaron los datos:\n {venta_registrada} con el folio {folio} el dia {fecha}")
-                    print("")
                     print("Usted esta saliendo del menu registro")
                     Ag_Produ=False
                 else:
