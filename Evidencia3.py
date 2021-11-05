@@ -1,23 +1,18 @@
 import sys
+import os
 import sqlite3
 from sqlite3 import Error
-import pandas as pd
-from collections import namedtuple
-import csv
 import datetime
 
-columnas_csv =("Fecha", "Nombre del Producto", "Cantidad", "Precio", "Total sin IVA", "IVA(16%)", "total Con IIVA")
-nombre_archivo = "Reporte_venta"
-diccionario = {}
-lista_de_listas = []
+venta=True
 Ag_Produ=True
 ciclo=True
 try:
-    with sqlite3.connect("VentasLlantas.bd")as conn:
+    with sqlite3.connect("VentasCosmeticos.db")as conn:
         c = conn.cursor()
-        c.execute("CREATE TABLE IF NOT EXISTS folio_venta(Folio INTEGER PRYMARY KEY, Fecha TEXTO NOT NULL);")
-        c.execute("CREATE TABLE IF NOT EXISTS Articulos(Producto TEXT NOT NULL, Cantidad REAL NOT NULL, Precio REAL NOT NULL, Total_sin_IVA REAL NOT NULL, IVA REAL NOT NULL, Total_con_IVA REAL NOT NULL);")
-        print("Tabla creada exitosamente")
+        c.execute("CREATE TABLE IF NOT EXISTS folio_venta(Folio INTEGER PRIMARY KEY,Fecha TEXTO NOT NULL);")
+        c.execute("CREATE TABLE IF NOT EXISTS Ventas(Producto TEXT NOT NULL, Cantidad INTEGER NOT NULL, Precio REAL NOT NULL, Total_sin_IVA REAL NOT NULL, IVA REAL NOT NULL, Total_con_IVA REAL NOT NULL,Folioventa INTEGER NOT NULL,FOREIGN KEY(Folioventa) REFERENCES folio_venta(Folio));")
+        print("La tabla se creo exitosamente")
     while ciclo:
         print("******Menu********")
         print("[1] Registrar una venta")
@@ -29,57 +24,78 @@ try:
         print()
 
         if opcion == "1":
-            folio = input("Folio de la nueva venta: ")
-            if not folio in diccionario.keys():
+            while True:
+                folio = int(input('\nIngrese el folio: '))
+                with sqlite3.connect("VentasCosmeticos.db") as conn:
+                    c = conn.cursor()
+                    val_folio = {"folio": folio}
+                    c.execute("SELECT * FROM folio_venta WHERE Folio = :folio", val_folio)
+                    fetfol = c.fetchall()
+                    if fetfol:
+                        print("El folio ya existe. Ingrese uno nuevamente")
+                    else:
+                        break  
+            while True:
+                fecha = datetime.date.today()
+                print(fecha)
+                c.execute("INSERT INTO folio_venta(Folio,Fecha)VALUES(?,?)",(folio,fecha))
+                print("Folio agregado exitosamente")
+                conn.commit()
                 while Ag_Produ:
-                    ventas = namedtuple("ventas", ("fecha", "producto", "cantidad", "precio", "total", "iva", "total_iva"))
-                    fecha = datetime.date.today()
-                    print(fecha)
                     producto = input("Producto: ")
                     precio = float(input("Precio: "))
                     cantidad = int(input("Cantidad: "))
                     total=precio * cantidad
                     iva = precio * 0.16
                     total_iva = (total)+(iva)
+                    c.execute("INSERT INTO Ventas(Producto,Cantidad,Precio,Total_sin_IVA,IVA,Total_con_IVA,Folioventa)VALUES(?,?,?,?,?,?,?)", (producto,cantidad,precio,total,iva,total_iva,folio))
+                    print("Los Registros se agregaron a la BD")
+                    conn.commit()
                     eleccion = input("Desea Agregar un nuevo producto[S/N]: ")
                     print()
-                    venta_registrada = ventas(fecha, producto, cantidad, precio, total, iva, total_iva)
-                    lista_de_listas.append(venta_registrada)
                     if eleccion == "S":
                         print("Agregue El Siguiente Producto")
                         pass
                     elif eleccion == "N":
                         print("Usted esta saliendo del menu registro")
+                        print(f"El Total a pagar es de: ${total}")
+                        print(f"IVA ${iva}")
+                        print(f"El total con iva es de ${total_iva}")
                         Ag_Produ=False
                     else:
                         print("La Opcion ingresada no existe intente de nuevo")
-            else:
-                print("La Clave ingresada ya existe")
-                print("Porfavor intente de nuevo...")
-            diccionario[folio] = lista_de_listas
 
-        elif opcion == "2":
-            consulta = input("Ingrese el Folio a consultar: ")
-            campos = ("fecha","producto","cantidad", "precio", "iva", "total")
-            nombres = list()
-            for x in diccionario.keys():
-                if consulta == x:
-                    """print(f"La Fecha registrada para esa venta es: {diccionario[consulta]}")"""
-                    for tupla in diccionario.values():
-                        for dato in tupla:
-                            print(dato)
-        elif opcion == "3":
-            fecha_actual = datetime.date.today()
-            fecha_capturada = input("Ingrese La Fecha (dd/mm/aaaa): \n")
-            fecha_procesada = datetime.datetime.strptime(fecha_capturada, "%d/%m/%Y").date()
-            if fecha_procesada == fecha_actual:
-                print("Tu registro se generara")
-                with open("Reporte_venta.csv","w",newline="") as archivo:
-                    registrador = csv.writer(archivo)
-                    registrador.writerow(columnas_csv)
-                    registrador.writerows(lista_de_listas)
+        elif opcion =="2":
+            folio_clave = int(input("Ingrese el Folio a consultar:"))
+            print("Las Ventas Registradas con ese folio son...")
+            valores={"folio":folio_clave}
+            c.execute('''SELECT folio_venta.Folio,folio_venta.Fecha,Ventas.Producto,Ventas.Cantidad,Ventas.Precio,Ventas.Total_sin_IVA,Ventas.IVA,Ventas.Total_con_IVA,Ventas.Folioventa 
+                FROM folio_venta 
+                INNER JOIN Ventas ON Ventas.Folioventa = folio_venta.Folio WHERE Folio = :folio''',valores)
+            registro= c.fetchall()
+            if registro:
+                print("Folio\t\tFecha\t\tProducto\t\tCantidad\t\tPrecio\t\tTotal_sin_IVA\t\tIVA\t\tTotal_con_IVA\t\tFolioventa")
+                for Folio,Fecha,Producto,Cantidad,Precio,Total_sin_IVA,iva,Total_con_IVA,Folioventa in registro:
+                    print(f"{Folio}\t\t{Fecha}\t{Producto}\t\t{Cantidad}\t\t{Precio}\t{Total_sin_IVA}\t\t{iva}\t{Total_con_IVA}\t\t{Folioventa}")
             else:
-                print("Tu registro se realizara el dia que indicaste")
+                print(f"No Se encontro un proyecto asociado con la clave {folio_clave}")
+        elif opcion =="3":
+            fecha_capturada = input("Ingrese La Fecha (dd-mm-aaaa): \n")
+            fecha_procesada = datetime.datetime.strptime(fecha_capturada, "%d-%m-%Y").date()
+            print("Las Ventas Registradas con esa fecha...")
+
+            valores={"folio":fecha_procesada}
+            c.execute('''SELECT folio_venta.Folio,folio_venta.Fecha,Ventas.Producto,Ventas.Cantidad,Ventas.Precio,Ventas.Total_sin_IVA,Ventas.IVA,Ventas.Total_con_IVA,Ventas.Folioventa 
+                FROM folio_venta 
+                INNER JOIN Ventas ON Ventas.Folioventa = folio_venta.Folio WHERE Fecha = :folio''',valores)
+            registro= c.fetchall()
+            if registro:
+                print("Folio\t\tFecha\t\tProducto\t\tCantidad\t\tPrecio\t\tTotal_sin_IVA\t\tIVA\t\tTotal_con_IVA\t\tFolioventa")
+                for Folio,Fecha,Producto,Cantidad,Precio,Total_sin_IVA,iva,Total_con_IVA,Folioventa in registro:
+                    print(f"{Folio}\t\t{Fecha}\t{Producto}\t\t{Cantidad}\t\t{Precio}\t{Total_sin_IVA}\t\t{iva}\t{Total_con_IVA}\t\t{Folioventa}")
+            else:
+                print(f"No Se encontro la fecha : {fecha_capturada} en el registro")
+
         elif opcion == "4":
             print("Usted esta saliendo del programa")
             ciclo=False
