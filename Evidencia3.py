@@ -7,11 +7,12 @@ import datetime
 venta=True
 Ag_Produ=True
 ciclo=True
+folio_venta=True
 try:
     with sqlite3.connect("VentasCosmeticos.db")as conn:
         c = conn.cursor()
         c.execute("CREATE TABLE IF NOT EXISTS folio_venta(Folio INTEGER PRIMARY KEY,Fecha TEXTO NOT NULL);")
-        c.execute("CREATE TABLE IF NOT EXISTS Ventas(Producto TEXT NOT NULL, Cantidad INTEGER NOT NULL, Precio REAL NOT NULL, Total_sin_IVA REAL NOT NULL, IVA REAL NOT NULL, Total_con_IVA REAL NOT NULL,Folioventa INTEGER NOT NULL,FOREIGN KEY(Folioventa) REFERENCES folio_venta(Folio));")
+        c.execute("CREATE TABLE IF NOT EXISTS Ventas(Producto TEXT NOT NULL, Cantidad INTEGER NOT NULL, Precio REAL NOT NULL, Total_sin_IVA REAL NOT NULL, IVA REAL NOT NULL, Total_con_IVA REAL NOT NULL,Folioventa INTEGER NOT NULL,FOREIGN KEY(Folioventa) REFERENCES Folioventa(Folio));")
         print("La tabla se creo exitosamente")
     while ciclo:
         print("******Menu********")
@@ -25,7 +26,7 @@ try:
 
         if opcion == "1":
             while True:
-                folio = int(input('\nIngrese el folio: '))
+                folio = int(input('Folio de la nueva venta: '))
                 with sqlite3.connect("VentasCosmeticos.db") as conn:
                     c = conn.cursor()
                     val_folio = {"folio": folio}
@@ -35,7 +36,7 @@ try:
                         print("El folio ya existe. Ingrese uno nuevamente")
                     else:
                         break  
-            while True:
+            while folio_venta:
                 fecha = datetime.date.today()
                 print(fecha)
                 c.execute("INSERT INTO folio_venta(Folio,Fecha)VALUES(?,?)",(folio,fecha))
@@ -49,7 +50,7 @@ try:
                     iva = precio * 0.16
                     total_iva = (total)+(iva)
                     c.execute("INSERT INTO Ventas(Producto,Cantidad,Precio,Total_sin_IVA,IVA,Total_con_IVA,Folioventa)VALUES(?,?,?,?,?,?,?)", (producto,cantidad,precio,total,iva,total_iva,folio))
-                    print("Los Registros se agregaron a la BD")
+                    print("La Venta Se Agrego a la BD")
                     conn.commit()
                     eleccion = input("Desea Agregar un nuevo producto[S/N]: ")
                     print()
@@ -62,6 +63,7 @@ try:
                         print(f"IVA ${iva}")
                         print(f"El total con iva es de ${total_iva}")
                         Ag_Produ=False
+                        folio_venta=False
                     else:
                         print("La Opcion ingresada no existe intente de nuevo")
 
