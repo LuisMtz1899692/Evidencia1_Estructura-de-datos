@@ -45,9 +45,8 @@ try:
     while ciclo:
         print("******Menu********")
         print("[1] Registrar una venta")
-        print("[2] Consultar una venta")
-        print("[3] Obtener Reportes de ventas")
-        print("[4] Salir")
+        print("[2] Obtener Reportes de ventas")
+        print("[3] Salir")
         print("******************")
         opcion = input("Elige una opcion :")
         print()
@@ -108,20 +107,6 @@ try:
                         print("La Opcion ingresada no existe intente de nuevo")
 
         elif opcion =="2":
-            folio_clave = int(input("Ingrese el Folio a consultar:"))
-            print("Las Ventas Registradas con ese folio son...")
-            valores={"folio":folio_clave}
-            c.execute('''SELECT folio_venta.Folio,folio_venta.Fecha,Ventas.Producto,Ventas.Cantidad,Ventas.Precio,Ventas.Total_sin_IVA,Ventas.IVA,Ventas.Total_con_IVA,Ventas.Folioventa 
-                FROM folio_venta 
-                INNER JOIN Ventas ON Ventas.Folioventa = folio_venta.Folio WHERE Folio = :folio''',valores)
-            registro= c.fetchall()
-            if registro:
-                print("Folio\t\tFecha\t\tProducto\t\tCantidad\t\tPrecio\t\tTotal_sin_IVA\t\tIVA\t\tTotal_con_IVA\t\tFolioventa")
-                for Folio,Fecha,Producto,Cantidad,Precio,Total_sin_IVA,iva,Total_con_IVA,Folioventa in registro:
-                    print(f"{Folio}\t\t{Fecha}\t{Producto}\t\t{Cantidad}\t\t{Precio}\t{Total_sin_IVA}\t\t{iva}\t{Total_con_IVA}\t\t{Folioventa}")
-            else:
-                print(f"No Se encontro un proyecto asociado con la clave {folio_clave}")
-        elif opcion =="3":
             fecha_capturada = input("Ingrese La Fecha (dd-mm-aaaa): \n")
             fecha_procesada = datetime.datetime.strptime(fecha_capturada, "%d-%m-%Y").date()
             print("Las Ventas Registradas con esa fecha...")
@@ -132,13 +117,13 @@ try:
                 INNER JOIN Ventas ON Ventas.Folioventa = folio_venta.Folio WHERE Fecha = :folio''',valores)
             registro= c.fetchall()
             if registro:
-                print("Folio\t\tFecha\t\tProducto\t\tCantidad\t\tPrecio\t\tTotal_sin_IVA\t\tIVA\t\tTotal_con_IVA\t\tFolioventa")
+                print("Folio\t\tFecha\t\tProducto\t\tCantidad\t\tPrecio\t\tTotal_sin_IVA\t\tIVA\t\tTotal_con_IVA")
                 for Folio,Fecha,Producto,Cantidad,Precio,Total_sin_IVA,iva,Total_con_IVA,Folioventa in registro:
-                    print(f"{Folio}\t\t{Fecha}\t{Producto}\t\t{Cantidad}\t\t{Precio}\t{Total_sin_IVA}\t\t{iva}\t{Total_con_IVA}\t\t{Folioventa}")
+                    print(f"{Folio}\t\t{Fecha}\t{Producto}\t\t{Cantidad}\t\t{Precio}\t{Total_sin_IVA}\t\t{iva}\t{Total_con_IVA}")
             else:
                 print(f"No Se encontro la fecha : {fecha_capturada} en el registro")
 
-        elif opcion == "4":
+        elif opcion == "3":
             print("Usted esta saliendo del programa")
             ciclo=False
         else:
